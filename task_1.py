@@ -4,11 +4,7 @@ from lru_cach import LRUCache
 
 
 def range_sum_no_cache(array, L, R):
-    result = 0
-
-    for i in range(L, R + 1):
-        result += array[i]
-    return result
+    return sum(array[L : R + 1])
 
 
 def update_no_cache(array, index, value):
@@ -23,9 +19,7 @@ def range_sum_with_cache(array, L, R):
     if cache.check((L, R)):
         return cache.get((L, R))
 
-    result = 0
-    for i in range(L, R + 1):
-        result += array[i]
+    result = sum(array[L : R + 1])
 
     cache.put((L, R), result)
     return result
@@ -51,18 +45,18 @@ def tests(n):
     for _ in range(n):
         q = random.choice(req)
         if q == "Range":
-            L = random.randint(0, 99999)
-            R = random.randint(L, 99999)
+            L = random.randint(0, 4999)
+            R = random.randint(L + 1, 9999)
             queries.append(("Range", L, R))
         elif q == "Update":
-            index = random.randint(0, 99999)
+            index = random.randint(0, 9999)
             value = random.randint(0, 100_000)
             queries.append(("Update", index, value))
     return queries
 
 
 if __name__ == "__main__":
-    arr = [random.randrange(0, 100_000) for _ in range(100_000)]
+    arr = [random.randrange(1, 100_001) for _ in range(10_000)]
     n = 50_000
     tests = tests(n)
 
@@ -77,13 +71,20 @@ if __name__ == "__main__":
         f"Execution time without cache: {time.perf_counter() - start_time:.2f} seconds"
     )
 
+    cache_hits = 0
+    cache_misses = 0
+
     start_time = time.perf_counter()
     for query in tests:
         if query[0] == "Range":
+            if cache.check((query[1], query[2])):
+                cache_hits += 1
+            else:
+                cache_misses += 1
             range_sum_with_cache(arr, query[1], query[2])
         else:
             update_with_cache(arr, query[1], query[2])
-            # tuple_arr = update_with_cache(arr, query[1], query[2], tuple_arr)
     print(
         f"Execution time with LRU cache: {time.perf_counter() - start_time:.2f} seconds"
     )
+    print(f"Cache hits: {cache_hits}, cahce misses: {cache_misses}")
