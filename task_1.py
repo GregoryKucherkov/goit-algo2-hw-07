@@ -12,7 +12,7 @@ def update_no_cache(array, index, value):
     return array
 
 
-cache = LRUCache(1000)
+cache = LRUCache(10_000)
 
 
 def range_sum_with_cache(array, L, R):
